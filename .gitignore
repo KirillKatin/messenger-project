@@ -1,0 +1,11 @@
+node_modules/
+.env
+uploads/*
+!uploads/.gitkeep
+logs/
+*.log
+coverage/
+.DS_Store
+.idea/
+.vscode/
+messenger-env/
