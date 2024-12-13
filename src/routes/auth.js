@@ -1,8 +1,11 @@
 import express from 'express';
-import { login, refresh, logout } from '../controllers/authController.js';
+import { login, refresh, logout, register } from '../controllers/authController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
+
+// Регистрация
+router.post('/register', register);
 
 // Аутентификация
 router.post('/login', login);
