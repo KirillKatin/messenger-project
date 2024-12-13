@@ -24,6 +24,7 @@ pool.on('error', (err) => {
 const initDb = async () => {
     const client = await pool.connect();
     try {
+        // Users table
         await client.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
@@ -33,6 +34,32 @@ const initDb = async () => {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
+
+        // Refresh tokens table
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS refresh_tokens (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                token VARCHAR(255) UNIQUE NOT NULL,
+                expires_at TIMESTAMP NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                revoked BOOLEAN DEFAULT FALSE,
+                revoked_at TIMESTAMP
+            );
+        `);
+
+        // Индекс для ускорения поиска по токену
+        await client.query(`
+            CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token 
+            ON refresh_tokens(token);
+        `);
+
+        // Индекс для поиска токенов пользователя
+        await client.query(`
+            CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id 
+            ON refresh_tokens(user_id);
+        `);
+
         console.log('Database tables initialized');
     } catch (error) {
         console.error('Database initialization error:', error);
